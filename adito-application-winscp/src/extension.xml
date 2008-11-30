@@ -4,7 +4,9 @@
 		name="WinSCP"
 		version="4.0.5"
 		requiredHostVersion="0.9.0"
-		order="99999">
+		order="99999"
+		productURL="http://winscp.net">
+
 	
 		<description>WinSCP is an open source freeware SFTP client for Windows using SSH.</description>
 	
