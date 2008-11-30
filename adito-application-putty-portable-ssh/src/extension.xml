@@ -4,7 +4,8 @@
 		type="executable"
 		version="1.0.1"
 		requiredHostVersion="0.9.0"
-		order="99999">
+		order="99999"
+		productURL="http://socialistsushi.com/portaputty">
 		
 		<description>PuTTY is a free implementation of SSH for Win32, along with an xterm terminal emulator.</description>
 
