@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="adito-application-vnc" default="dist">
+<project name="adito-application-tightvnc" default="dist">
 
         <!-- Standard build locations -->
         <property name="build.src" value="src" />
-        <property name="output.file" value="adito-application-vnc.zip" />
+        <property name="output.file" value="adito-application-tightvnc.zip" />
 
-        <!-- Build the adito-application-vnc.zip -->
+        <!-- Build the adito-application-tightvnc.zip -->
         <target name="dist">
                 <zip destfile="${output.file}">
-                        <zipfileset dir="${build.src}" prefix="adito-application-vnc">
+                        <zipfileset dir="${build.src}" prefix="adito-application-tightvnc">
                         </zipfileset>
                 </zip>
         </target>
