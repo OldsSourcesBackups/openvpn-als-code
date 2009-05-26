@@ -36,6 +36,8 @@ import org.alfresco.jlan.ftp.FTPSiteInterface;
 import org.alfresco.jlan.ftp.InvalidPathException;
 import org.alfresco.jlan.oncrpc.nfs.NFSConfigSection;
 import org.alfresco.jlan.server.config.InvalidConfigurationException;
+import org.alfresco.jlan.webdav.WEBDAVConfigSection;
+import org.alfresco.jlan.webdav.WebDavProvider;
 import org.alfresco.config.ConfigElement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -62,18 +64,19 @@ public class XMLServerConfiguration extends CifsOnlyXMLServerConfiguration {
 	// FTP server debug type strings
 
 	private static final String m_ftpDebugStr[] = { "STATE", "RXDATA", "TXDATA", "DUMPDATA", "SEARCH", "INFO", "FILE", "FILEIO",
-			"ERROR", "PKTTYPE", "TIMING", "DATAPORT", "DIRECTORY" };
+		"ERROR", "PKTTYPE", "TIMING", "DATAPORT", "DIRECTORY" };
 
 	// NFS server debug type strings
 
 	private static final String m_nfsDebugStr[] = { "RXDATA", "TXDATA", "DUMPDATA", "SEARCH", "INFO", "FILE", "FILEIO", "ERROR",
-			"TIMING", "DIRECTORY", "SESSION" };
+		"TIMING", "DIRECTORY", "SESSION" };
 
 	// Global server enable flags
 
 	private boolean m_cifsEnabled;
 	private boolean m_ftpEnabled;
 	private boolean m_nfsEnabled;
+	private boolean m_webdavEnabled;
 
 	/**
 	 * Default constructor
@@ -90,7 +93,7 @@ public class XMLServerConfiguration extends CifsOnlyXMLServerConfiguration {
 	 * @exception InvalidConfigurationException
 	 */
 	public void loadConfiguration(Document doc)
-		throws IOException, InvalidConfigurationException {
+	throws IOException, InvalidConfigurationException {
 
 		// Reset the current configuration to the default settings
 
@@ -114,9 +117,9 @@ public class XMLServerConfiguration extends CifsOnlyXMLServerConfiguration {
 			procServersElement(findChildNode("servers", childNodes));
 
 			// Process the core server configuration settings
-			
+
 			procServerCoreElement(findChildNode("server-core", childNodes));
-			
+
 			// Process the global configuration settings
 
 			procGlobalElement(findChildNode("global", childNodes));
@@ -143,6 +146,10 @@ public class XMLServerConfiguration extends CifsOnlyXMLServerConfiguration {
 
 			if ( isNFSServerEnabled())
 				procNFSServerElement(findChildNode("NFS", childNodes));
+
+			if ( isWebDavEnabled())
+				procWEBDAVServerElement(findChildNode("WEBDAV", childNodes));
+
 		}
 		catch (Exception ex) {
 
@@ -171,6 +178,15 @@ public class XMLServerConfiguration extends CifsOnlyXMLServerConfiguration {
 	}
 
 	/**
+	 * Check if the WEBDAV server is enabled
+	 * 
+	 * @return boolean
+	 */
+	public final boolean isWebDavEnabled() {
+		return m_webdavEnabled;
+	}
+
+	/**
 	 * Check if the NFS server is enabled
 	 * 
 	 * @return boolean
@@ -186,7 +202,7 @@ public class XMLServerConfiguration extends CifsOnlyXMLServerConfiguration {
 	 * @exception InvalidConfigurationException
 	 */
 	protected final void procServersElement(Element servers)
-		throws InvalidConfigurationException {
+	throws InvalidConfigurationException {
 
 		// Check if the servers element has been specified, if not then this is an old format
 		// configuration
@@ -207,8 +223,79 @@ public class XMLServerConfiguration extends CifsOnlyXMLServerConfiguration {
 
 			if ( findChildNode("NFS", servers.getChildNodes()) != null)
 				m_nfsEnabled = true;
+
+			if ( findChildNode("WEBDAV", servers.getChildNodes()) != null)
+				m_webdavEnabled = true;
+
 		}
 	}
+
+
+	/**
+	 * Process the WEB Client XML element
+	 * 
+	 * @param ftp Element
+	 * @exception InvalidConfigurationException
+	 */
+	protected final void procWEBDAVServerElement(Element webdav)
+	throws InvalidConfigurationException {
+
+		// Check if the webdav element is valid, if not then disable the FTP server
+
+		if ( webdav == null) {
+
+			// Check if the WebDav Client is enabled, if so then there must be an FTP configuration
+			// section
+
+			if ( isWebDavEnabled())
+				throw new InvalidConfigurationException("webDav Client enabled, but not configured");
+			return;
+		}
+
+
+		// Create the WebDav configuration section
+		WEBDAVConfigSection webDavConfig = new WEBDAVConfigSection(this);
+
+
+		// Check and set host to connect
+		Element elem=findChildNode("host", webdav.getChildNodes());
+		if(elem==null)
+			throw new InvalidConfigurationException("webDav host not configured");		
+		webDavConfig.setHost(getText(elem));
+
+
+		// Check set port of the host
+		elem=findChildNode("port", webdav.getChildNodes());	
+		if(elem==null)
+			throw new InvalidConfigurationException("webDav host port not configured");
+
+		webDavConfig.setM_webDavPort(Integer.parseInt( getText(elem)));		
+
+
+
+
+		// check and set webdav dir
+		elem=findChildNode("rootDirectory", webdav.getChildNodes());
+		if(elem==null)
+			throw new InvalidConfigurationException("webDav directory not configured");
+
+
+		// check listener port
+		elem=findChildNode("listenToPort", webdav.getChildNodes());
+		if(elem==null)
+			throw new InvalidConfigurationException("webDav provider could not find any listener");
+		webDavConfig.setListenOnPort(Integer.parseInt( getText(elem)));
+
+
+		// Check set maximum connection, default connection is 10
+		elem=findChildNode("maxConnection", webdav.getChildNodes());
+		if(elem==null)			
+			webDavConfig.setMaxConnection(WebDavProvider.defaultConeection);
+		else
+			webDavConfig.setMaxConnection(Integer.parseInt( getText(elem)));
+	}
+
+
 
 	/**
 	 * Process the FTP server XML element
@@ -217,7 +304,7 @@ public class XMLServerConfiguration extends CifsOnlyXMLServerConfiguration {
 	 * @exception InvalidConfigurationException
 	 */
 	protected final void procFTPServerElement(Element ftp)
-		throws InvalidConfigurationException {
+	throws InvalidConfigurationException {
 
 		// Check if the FTP element is valid, if not then disable the FTP server
 
@@ -236,15 +323,15 @@ public class XMLServerConfiguration extends CifsOnlyXMLServerConfiguration {
 		FTPConfigSection ftpConfig = new FTPConfigSection(this);
 
 		// Check if IPv6 support is enabled
-		
+
 		Element elem = findChildNode("IPv6", ftp.getChildNodes());
 		if ( elem != null) {
-			
+
 			// Enable IPv6 support
-			
+
 			ftpConfig.setIPv6Enabled( true);
 		}
-		
+
 		// Check for a bind address
 
 		elem = findChildNode("bindto", ftp.getChildNodes());
@@ -537,7 +624,7 @@ public class XMLServerConfiguration extends CifsOnlyXMLServerConfiguration {
 	 * @exception InvalidConfigurationException
 	 */
 	protected final void procNFSServerElement(Element nfs)
-		throws InvalidConfigurationException {
+	throws InvalidConfigurationException {
 
 		// Check if the NFS element is valid
 
@@ -672,10 +759,11 @@ public class XMLServerConfiguration extends CifsOnlyXMLServerConfiguration {
 			nfsConfig.setRpcAuthenticator(getText(classElem), params);
 		}
 		else {
-			
+
 			// Use the null RPC authenticator as the default
-			
-			nfsConfig.setRpcAuthenticator( "org.alfresco.jlan.oncrpc.DefaultRpcAuthenticator", new ConfigElement( "", ""));
+
+			// ConfigElement line try to inintiate ConfigElement  interface need fix this 
+			nfsConfig.setRpcAuthenticator( "org.alfresco.jlan.oncrpc.DefaultRpcAuthenticator", null);
 		}
 
 		// Check if NFS debug is enabled
