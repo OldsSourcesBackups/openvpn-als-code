@@ -22,24 +22,23 @@ public class WebDavProvider extends NetworkServer implements Runnable, Configura
 	private Thread m_srvThread;
 	//	Session group
 	protected static final ThreadGroup WebDavhreadGroup = new ThreadGroup( "WEBDAVSessions");
-	//	Listen backlog for the server socket	
+
+	//	Listen backlog for the server socket
 	protected static final int LISTEN_BACKLOG = 10;
 
-	public static final int defaultConeection=10;
+	public static final int defaultConeection=10;	
 
-	//	Server socket	
+	//	Server socket
 	private ServerSocket m_srvSock;
-	//	webdav host
-	private WebDavHostFactory host;
+
 	//	webdav configureation
 	private WEBDAVConfigSection m_configSection;
 
-	
-	
+
+
 	public WebDavProvider(ServerConfiguration config) {
 		super("WEBDAV", config);
-		m_configSection=(WEBDAVConfigSection) config.getConfigSection( WEBDAVConfigSection.SectionName);		
-		host=WebDavHostFactory.newInstence(m_configSection.getHost(), m_configSection.getM_webDavPort(), m_configSection.getMaxConnection());
+		m_configSection=(WEBDAVConfigSection) config.getConfigSection( WEBDAVConfigSection.SectionName);	
 		getConfiguration().addListener(this);
 	}
 
@@ -58,13 +57,27 @@ public class WebDavProvider extends NetworkServer implements Runnable, Configura
 			while ( hasShutdown() == false) {
 				Socket sessSock = getSocket().accept();
 				sessSock.setTcpNoDelay(true);
-					Debug.println("Start new  Session");
+				try
+				{
+
+					WebDavSession session=new WebDavSession(this,sessSock,new WebDavChannel(m_configSection));
+
+					Thread sessionThread=new Thread(WebDavhreadGroup,session);
+					sessionThread.setDaemon(true);
+					sessionThread.start();
+
+				}catch(IOException e)
+				{
+					Debug.println("Unable to estublish session : " + e.toString());
+					Debug.println(e);					
+				}
+
 
 			}			
 
 		} catch (IOException e) {
 			if (hasShutdown() == false) {
-				Debug.println("[FTP] FTP Socket error : " + e.toString());
+				Debug.println("Socket error : " + e.toString());
 				Debug.println(e);
 				setException(e);
 				fireServerEvent(ServerListener.ServerError);
@@ -84,9 +97,21 @@ public class WebDavProvider extends NetworkServer implements Runnable, Configura
 
 	@Override
 	public void shutdownServer(boolean immediate) {
-
-
+		
+		setShutdown(true);
+		try {
+			if ( getSocket() != null)
+				getSocket().close();
+		}
+		catch (IOException ex) {
+		}
+		m_configSection.closeConfig();
+		
+		//	Fire a shutdown notification event    
+		fireServerEvent(ServerListener.ServerShutdown);
+		
 	}
+
 
 	@Override
 	public void startServer() {
