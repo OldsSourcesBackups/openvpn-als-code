@@ -40,7 +40,14 @@
 		</authenticator>
     
   </SMB>
-
+<WEBDAV>
+    <port>8181</port>
+    <host>localhost</host>
+    <rootDirectory>uploads</rootDirectory>
+    <maxConnection>10</maxConnection>
+    <listenToPort>8989</listenToPort>
+    <debug flags="File,Search,Error,DataPort,Directory"/>
+</WEBDAV>
   <FTP>
     <port>21</port>
     <allowAnonymous/>

@@ -279,14 +279,16 @@ public class XMLServerConfiguration extends CifsOnlyXMLServerConfiguration {
 		if(elem==null)
 			throw new InvalidConfigurationException("webDav directory not configured");
 
-
-		// check listener port
+		webDavConfig.setM_rootDirectory(getText(elem));
+		
+		// check listen on port
 		elem=findChildNode("listenToPort", webdav.getChildNodes());
 		if(elem==null)
 			throw new InvalidConfigurationException("webDav provider could not find any listener");
 		webDavConfig.setListenOnPort(Integer.parseInt( getText(elem)));
 
 
+		
 		// Check set maximum connection, default connection is 10
 		elem=findChildNode("maxConnection", webdav.getChildNodes());
 		if(elem==null)			
