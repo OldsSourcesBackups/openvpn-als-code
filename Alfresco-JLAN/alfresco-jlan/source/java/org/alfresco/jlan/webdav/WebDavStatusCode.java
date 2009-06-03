@@ -2,10 +2,6 @@ package org.alfresco.jlan.webdav;
 
 import java.util.Hashtable;
 
-/**
- * @author Kamal hossain
- *
- */
 public class WebDavStatusCode {
 	private static Hashtable StatusCodes = new Hashtable();
 

@@ -5,10 +5,7 @@ import org.alfresco.jlan.ftp.FTPSrvSession;
 import org.alfresco.jlan.server.auth.ClientInfo;
 import org.alfresco.jlan.server.config.InvalidConfigurationException;
 import org.alfresco.jlan.server.config.ServerConfiguration;
-/**
- * @author Kamal hossain
- *
- */
+
 public interface WEBAuthenticator {
 	  /**
 	   * Initialize the authenticator

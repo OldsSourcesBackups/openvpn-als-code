@@ -5,10 +5,6 @@ import java.net.InetAddress;
 import org.alfresco.jlan.server.config.ConfigSection;
 import org.alfresco.jlan.server.config.ServerConfiguration;
 
-/**
- * @author Kamal hossain
- *
- */
 public class WEBDAVConfigSection extends ConfigSection{
 
 	// Web DAV configuration section name	  

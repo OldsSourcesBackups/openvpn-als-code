@@ -4,11 +4,6 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 
 
 
-/**
- * @author Kamal Hossain
- *
- */
-
 public class DAVUser {
     private String user="";
     private String pws="";

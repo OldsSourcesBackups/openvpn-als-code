@@ -1,9 +1,5 @@
 package org.alfresco.jlan.webdav;
 
-/**
- * @author Kamal hossain
- *
- */
 public interface WebDavTokens {
 	short ACL = 1;
 	int CHECKIN = 2;

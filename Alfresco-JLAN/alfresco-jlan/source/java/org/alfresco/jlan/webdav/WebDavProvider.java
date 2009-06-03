@@ -13,10 +13,6 @@ import org.alfresco.jlan.server.config.ConfigurationListener;
 import org.alfresco.jlan.server.config.InvalidConfigurationException;
 import org.alfresco.jlan.server.config.ServerConfiguration;
 
-/**
- * @author Kamal hossain
- *
- */
 public class WebDavProvider extends NetworkServer implements Runnable, ConfigurationListener{
 
 	private Thread m_srvThread;

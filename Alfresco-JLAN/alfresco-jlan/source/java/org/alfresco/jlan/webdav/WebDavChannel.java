@@ -8,11 +8,6 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 
-/**
- * @author Kamal Hossain
- *
- */
-
 public class WebDavChannel {	 	
 	 final HttpClient client;
 	 final String rootPath;

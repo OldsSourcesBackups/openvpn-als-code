@@ -15,10 +15,7 @@ import org.alfresco.jlan.debug.Debug;
 import org.alfresco.jlan.server.SrvSession;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
-/**
- * @author Kamal hossain
- *
- */
+
 public class WebDavSession extends SrvSession implements Runnable {
 	private InputStream m_in;
 	private OutputStreamWriter m_out;
